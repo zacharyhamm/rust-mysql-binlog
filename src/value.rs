@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use serde::{Serialize, Serializer};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 /// Wrapper for the SQL BLOB (Binary Large OBject) type
 ///
 /// Serializes as Base64
@@ -24,7 +24,7 @@ impl Serialize for Blob {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 /// Normalized representation of types which are present in MySQL
 pub enum MySQLValue {
     SignedInteger(i64),
