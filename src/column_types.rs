@@ -1,4 +1,4 @@
-use std::io::{self, Read};
+use std::io::{self, Read, Seek, SeekFrom};
 
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 
@@ -79,7 +79,7 @@ impl ColumnType {
         }
     }
 
-    pub(crate) fn read_metadata<R: Read>(self, cursor: &mut R) -> Result<Self, io::Error> {
+    pub(crate) fn read_metadata<R: Read + Seek>(self, cursor: &mut R) -> Result<Self, io::Error> {
         Ok(match self {
             ColumnType::Float(_) => {
                 let pack_length = cursor.read_u8()?;
@@ -117,7 +117,11 @@ impl ColumnType {
                 // XXX todo this actually includes some of the bits from f1
                 match real_type {
                     ColumnType::Enum(_) => ColumnType::Enum(real_size),
-                    i => unimplemented!("unimplemented stringy type {:?}", i),
+                    i => {
+                        // Skip 
+                        cursor.seek(SeekFrom::Current(real_size as i64))?;
+                        i
+                    }
                 }
             }
             ColumnType::Enum(_) => {
